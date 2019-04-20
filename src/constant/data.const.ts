@@ -42,6 +42,9 @@ export namespace ConstData {
         MARKET = 1,
     }
 
+    // 涨跌幅% 限制, 10%
+    export const TRADE_CHANGE_PER_LIMIT = 10;
+
     export const TRADE_PERIODS = [
         {
             begin: '00:30',
