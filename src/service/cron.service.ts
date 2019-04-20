@@ -1,6 +1,5 @@
 import { Injectable, UnauthorizedException, NotFoundException, BadRequestException, Logger, Inject } from '@nestjs/common';
 import { BaseService } from './base.service';
-import { OrderService } from './order.service';
 import { UserCapitalService } from './user_capital.service';
 import { CronJob } from 'cron';
 import { AuthService } from './auth.service';
@@ -20,7 +19,6 @@ export class CronService extends BaseService {
 
     constructor(
         @Inject(ConstProvider.SEQUELIZE) private readonly sequelize: Sequelize,
-        private readonly orderService: OrderService,
         private readonly authService: AuthService,
         private readonly userCapitalService: UserCapitalService,
         private readonly userService: UserService,
@@ -32,15 +30,15 @@ export class CronService extends BaseService {
         super();
     }
 
-    public async fire() {
-        await this.fireCreateRobot();
-        await this.fireGrantCapital();
-        await this.fireEndQuotation();
-        await this.fireStartQuotation();
-        await this.fireRobotTrade();
+    public fire() {
+        this.fireCreateRobot();
+        this.fireGrantCapital();
+        this.fireEndQuotation();
+        this.fireStartQuotation();
+        this.fireRobotTrade();
     }
 
-    private async fireRobotTrade() {
+    private fireRobotTrade() {
         const begin = Moment(ConstData.TRADE_PERIODS[0].begin, 'HH:mm');
         const end = Moment(ConstData.TRADE_PERIODS[1].end, 'HH:mm');
         const beginMinutes = Moment(begin).format('mm');
@@ -56,7 +54,7 @@ export class CronService extends BaseService {
         job.start();
     }
 
-    private async fireStartQuotation() {
+    private fireStartQuotation() {
         const begin = Moment(ConstData.TRADE_PERIODS[0].begin, 'HH:mm').subtract(30, 'minutes');
         const minutes = Moment(begin).format('m');
         const hours = Moment(begin).format('HH');
@@ -78,7 +76,7 @@ export class CronService extends BaseService {
         job.start();
     }
 
-    private async fireEndQuotation() {
+    private fireEndQuotation() {
         const currentDate = Moment().format('YYYY-MM-DD');
         const end = Moment(ConstData.TRADE_PERIODS[1].end, 'HH:mm').add(10, 'minutes');
         const minutes = Moment(end).format('m');
@@ -115,7 +113,7 @@ export class CronService extends BaseService {
         job.start();
     }
 
-    private async fireGrantCapital() {
+    private fireGrantCapital() {
         // 0 0 1 * * *
         const createRobotJob = new CronJob('54 */20 * * * *', async () => {
             Logger.log('发钱开始');
@@ -137,7 +135,7 @@ export class CronService extends BaseService {
         createRobotJob.start();
     }
 
-    private async fireCreateRobot() {
+    private fireCreateRobot() {
         // 0 */20 * * * *
         const createRobotJob = new CronJob('35 */10 * * * *', async () => {
             Logger.log('创建机器人开始');

@@ -9,7 +9,6 @@ import { UserStockService } from '../service/user_stock.service';
 import { StockHistoryService } from '../service/stock_history.service';
 import { StockOrderService } from '../service/stock_order.service';
 import { UserStockOrderService } from '../service/user_stock_order.service';
-import { OrderService } from '../service/order.service';
 import { ConfigModule } from '../provider/config/config.module';
 import { CronService } from '../service/cron.service';
 import { UserService } from '../service/user.service';
@@ -32,7 +31,7 @@ import { StockSummaryService } from '../service/stock_summary.service';
     providers: [
         AuthService, JwtStrategy,
         StockService, UserCapitalService, UserStockService, StockHistoryService,
-        StockOrderService, UserStockOrderService, OrderService,
+        StockOrderService, UserStockOrderService,
         CronService, UserService, RobotService, StockSummaryService,
     ],
     exports: [
