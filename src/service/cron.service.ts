@@ -30,15 +30,15 @@ export class CronService extends BaseService {
         super();
     }
 
-    public fire() {
-        this.fireCreateRobot();
-        this.fireGrantCapital();
-        this.fireEndQuotation();
-        this.fireStartQuotation();
-        this.fireRobotTrade();
+    public async fire() {
+        await this.fireCreateRobot();
+        await this.fireGrantCapital();
+        await this.fireEndQuotation();
+        await this.fireStartQuotation();
+        await this.fireRobotTrade();
     }
 
-    private fireRobotTrade() {
+    private async fireRobotTrade() {
         const begin = Moment(ConstData.TRADE_PERIODS[0].begin, 'HH:mm');
         const end = Moment(ConstData.TRADE_PERIODS[1].end, 'HH:mm');
         const beginMinutes = Moment(begin).format('mm');
@@ -54,7 +54,7 @@ export class CronService extends BaseService {
         job.start();
     }
 
-    private fireStartQuotation() {
+    private async fireStartQuotation() {
         const begin = Moment(ConstData.TRADE_PERIODS[0].begin, 'HH:mm').subtract(30, 'minutes');
         const minutes = Moment(begin).format('m');
         const hours = Moment(begin).format('HH');
@@ -76,7 +76,7 @@ export class CronService extends BaseService {
         job.start();
     }
 
-    private fireEndQuotation() {
+    private async fireEndQuotation() {
         const currentDate = Moment().format('YYYY-MM-DD');
         const end = Moment(ConstData.TRADE_PERIODS[1].end, 'HH:mm').add(10, 'minutes');
         const minutes = Moment(end).format('m');
@@ -113,7 +113,7 @@ export class CronService extends BaseService {
         job.start();
     }
 
-    private fireGrantCapital() {
+    private async fireGrantCapital() {
         // 0 0 1 * * *
         const createRobotJob = new CronJob('54 */20 * * * *', async () => {
             Logger.log('发钱开始');
@@ -135,7 +135,7 @@ export class CronService extends BaseService {
         createRobotJob.start();
     }
 
-    private fireCreateRobot() {
+    private async fireCreateRobot() {
         // 0 */20 * * * *
         const createRobotJob = new CronJob('35 */10 * * * *', async () => {
             Logger.log('创建机器人开始');
