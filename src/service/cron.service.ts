@@ -48,19 +48,15 @@ export class CronService extends BaseService {
 
         const job = new CronJob(`57 * ${beginHours}-${endHours} * * *`, async () => {
             Logger.log('机器人交易开始');
-            const transaction = await this.sequelize.transaction();
-            const robots = await this.userService.findAllRobot(transaction);
-            try {
-                for (const robot of robots) {
-                    await this.robotService.dispatchStrategy(robot.id, transaction);
+            const robots = await this.userService.findAllRobot();
+            for (const robot of robots) {
+                try {
+                    await this.robotService.dispatchStrategy(robot.id);
+                } catch (e) {
+                    console.log(e);
                 }
-                await transaction.commit();
-                Logger.log('机器人交易成功');
-            } catch (e) {
-                console.log(e);
-                await transaction.rollback();
-                Logger.log('机器人交易失败');
             }
+            Logger.log('机器人交易结束');
         });
         job.start();
     }
