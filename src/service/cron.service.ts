@@ -48,8 +48,19 @@ export class CronService extends BaseService {
 
         const job = new CronJob(`57 * ${beginHours}-${endHours} * * *`, async () => {
             Logger.log('机器人交易开始');
-            await this.robotService.dispatchStrategy();
-            Logger.log('机器人交易结束');
+            const transaction = await this.sequelize.transaction();
+            const robots = await this.userService.findAllRobot(transaction);
+            try {
+                for (const robot of robots) {
+                    await this.robotService.dispatchStrategy(robot.id, transaction);
+                }
+                await transaction.commit();
+                Logger.log('机器人交易成功');
+            } catch (e) {
+                console.log(e);
+                await transaction.rollback();
+                Logger.log('机器人交易失败');
+            }
         });
         job.start();
     }
@@ -114,20 +125,19 @@ export class CronService extends BaseService {
     }
 
     private async fireGrantCapital() {
-        // 0 0 1 * * *
-        const createRobotJob = new CronJob('54 */20 * * * *', async () => {
+        const createRobotJob = new CronJob('0 15 0 * * *', async () => {
             Logger.log('发钱开始');
-            const users = await this.userService.findAll();
-            for (const user of users) {
-                const transaction = await this.sequelize.transaction();
-                try {
+            const transaction = await this.sequelize.transaction();
+            const users = await this.userService.findAll(transaction);
+            try {
+                for (const user of users) {
                     const userCapital = await this.userCapitalService.findOneByUserId(user.id, transaction);
-                    if (userCapital) await this.userCapitalService.addUserCapital(user.id, 1000, transaction);
-                    await transaction.commit();
-                } catch (e) {
-                    console.log(e);
-                    await transaction.rollback();
+                    if (userCapital) await this.userCapitalService.addUserCapital(user.id, 10000, transaction);
                 }
+                await transaction.commit();
+            } catch (e) {
+                console.log(e);
+                await transaction.rollback();
             }
 
             Logger.log('发钱结束');

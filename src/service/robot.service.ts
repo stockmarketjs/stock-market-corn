@@ -62,18 +62,11 @@ export class RobotService extends BaseService {
         await this.stockService.sold(stock.id, price, hand, operatorId, transaction);
     }
 
-    public async dispatchStrategy() {
-        const robots = await this.userService.findAllRobot();
-
-        for (const robot of robots) {
-            const transaction = await this.sequelize.transaction();
-            try {
-                await this.randomStrategy(robot.id, transaction);
-                await transaction.commit();
-            } catch{
-                await transaction.rollback();
-            }
-        }
+    public async dispatchStrategy(
+        operatorId: string,
+        transaction?: Transaction,
+    ) {
+        await this.randomStrategy(operatorId, transaction);
     }
 
 }
