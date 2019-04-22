@@ -41,24 +41,35 @@ export class CronService extends BaseService {
     private async fireRobotTrade() {
         const begin = Moment(ConstData.TRADE_PERIODS[0].begin, 'HH:mm');
         const end = Moment(ConstData.TRADE_PERIODS[1].end, 'HH:mm');
-        const beginMinutes = Moment(begin).format('mm');
-        const beginHours = Moment(begin).format('H');
-        const endMinutes = Moment(end).format('mm');
-        const endHours = Moment(end).format('H');
-
-        const job = new CronJob(`57 * ${beginHours}-${endHours} * * *`, async () => {
+        const beginHm = Moment(begin).format('HHmm');
+        const endHm = Moment(end).format('HHmm');
+        const maxTryCount = 10;
+        let currentTryCount = 0;
+        while (1) {
             Logger.log('机器人交易开始');
-            const robots = await this.userService.findAllRobot();
-            for (const robot of robots) {
-                try {
-                    await this.robotService.dispatchStrategy(robot.id);
-                } catch (e) {
-                    console.log(e);
+            try {
+                const currentHm = Moment().format('HHmm');
+                if (Number(beginHm) <= Number(currentHm) && Number(currentHm) <= Number(endHm)) {
+                    const robots = await this.userService.findAllRobot();
+                    for (const robot of robots) {
+                        try {
+                            await this.robotService.dispatchStrategy(robot.id);
+                        } catch (e) { }
+                    }
+                }
+                await sleep(20000);
+                currentTryCount = 0;
+            } catch (e) {
+                console.log(e);
+                currentTryCount++;
+                await sleep(currentTryCount * 60000);
+                if (currentTryCount > maxTryCount) {
+                    console.log('超过最大错误次数');
+                    process.exit();
                 }
             }
             Logger.log('机器人交易结束');
-        });
-        job.start();
+        }
     }
 
     private async fireStartQuotation() {
@@ -162,4 +173,12 @@ export class CronService extends BaseService {
         createRobotJob.start();
     }
 
+}
+
+async function sleep(time: number) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve();
+        }, time);
+    });
 }
