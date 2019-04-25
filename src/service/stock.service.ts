@@ -71,6 +71,7 @@ export class StockService extends BaseService {
             endPrice: 0,
             highestPrice: stock.currentPrice,
             lowestPrice: stock.currentPrice,
+            totalHand: 0,
         }, {
                 where: {
                     id,
