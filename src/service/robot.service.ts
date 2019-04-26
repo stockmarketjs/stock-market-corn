@@ -45,7 +45,7 @@ export class RobotService extends BaseService {
         if (!stock) return false;
 
         const hand = _.random(1, 100);
-        const price = _.round(_.random(Calc.mul(stock.currentPrice, 0.9), Calc.mul(stock.currentPrice, 1.1)), 2);
+        const price = _.round(_.random(Calc.mul(stock.currentPrice, 0.95), Calc.mul(stock.currentPrice, 1.05)), 2);
         await this.stockService.buy(stock.id, price, hand, operatorId, transaction);
     }
 
@@ -58,7 +58,7 @@ export class RobotService extends BaseService {
         if (!stock) return false;
 
         const hand = _.random(1, 100);
-        const price = _.round(_.random(Calc.mul(stock.currentPrice, 0.9), Calc.mul(stock.currentPrice, 1.1)), 2);
+        const price = _.round(_.random(Calc.mul(stock.currentPrice, 0.95), Calc.mul(stock.currentPrice, 1.05)), 2);
         await this.stockService.sold(stock.id, price, hand, operatorId, transaction);
     }
 
