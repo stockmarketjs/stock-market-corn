@@ -95,11 +95,12 @@ export class CronService extends BaseService {
     }
 
     private async fireEndQuotation() {
-        const currentDate = Moment().format('YYYY-MM-DD');
         const end = Moment(ConstData.TRADE_PERIODS[1].end, 'HH:mm').add(10, 'minutes');
         const minutes = Moment(end).format('m');
         const hours = Moment(end).format('H');
         const job = new CronJob(`0 ${minutes} ${hours} * * *`, async () => {
+            const currentDate = Moment().format('YYYY-MM-DD');
+
             Logger.log('收盘开始');
             const transaction = await this.sequelize.transaction();
             try {
@@ -139,7 +140,7 @@ export class CronService extends BaseService {
             try {
                 for (const user of users) {
                     const userCapital = await this.userCapitalService.findOneByUserId(user.id, transaction);
-                    if (userCapital) await this.userCapitalService.addUserCapital(user.id, 10000, transaction);
+                    if (userCapital) await this.userCapitalService.addUserCapital(user.id, 100000, transaction);
                 }
                 await transaction.commit();
             } catch (e) {
